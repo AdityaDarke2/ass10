@@ -1,0 +1,31 @@
+top / htop: Real-time CPU, memory, and process list.
+
+free -m (or -h): RAM & swap (MemAvailable is true usable RAM, unlike free which excludes cache).
+
+df -h (disk space) vs df -i (inode count — a disk can be "full" with free GBs if inodes hit 100%).   
+
+uptime: System uptime + 1-min, 5-min, 15-min load averages.   
+
+vmstat 1 5: Run queue (r), blocked I/O (b), swap in/out (si/so), blocks written (bo), CPU idle (id) & I/O wait (wa).   
+
+iostat -x 1 3: Disk utilization (%util) and latency (await in ms).   
+
+pidstat -u 2 3: Per-process CPU usage.   
+
+Generate and Kill Artificial CPU Load:
+yes > /dev/null &       # Run 2-3 times for multi-core load
+pkill yes               # Kill all yes processes
+
+CPU Affinity (taskset):
+
+taskset -c 1 python3 -c "print(sum(i%5 for i in range(15000000)))"      # Launch pinned to core 1
+ps -o pid,psr,cmd -p <PID>   # Check running core (PSR column)
+taskset -cp 0 <PID>          # Move running process to core 0
+
+Greedy process:
+taskset -c 1 yes > /dev/null &
+jobs -l
+
+Memory Limit (ulimit -v):
+
+( ulimit -v 300000; python3 -c "a = b'x'*(400*1024*1024)" )  # Subshell prevents locking main shell
